@@ -16,15 +16,15 @@ type database struct{}
 
 var PG database
 
-func (this *database) GetInstance() *gorm.DB {
+func (d *database) GetInstance() *gorm.DB {
 	if db == nil {
-		db = this.initDatabase()
+		db = d.initDatabase()
 		log.Printf("Database connected")
 	}
 	return db
 }
 
-func (this *database) initDatabase() *gorm.DB {
+func (d *database) initDatabase() *gorm.DB {
 	connectionStr := getConnectionString()
 	db, err := gorm.Open("postgres", connectionStr)
 	if err != nil {

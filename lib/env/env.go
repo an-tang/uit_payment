@@ -74,6 +74,30 @@ func GetLogLevel() string {
 	return getEnv("LOG_LEVEL")
 }
 
+func GetFileMaxSize() int {
+	v, err := strconv.Atoi(os.Getenv("FILE_MAX_SIZE"))
+	if err != nil {
+		return 0
+	}
+	return v
+}
+
+func GetFileBackups() int {
+	v, err := strconv.Atoi(os.Getenv("FILE_BACKUPS"))
+	if err != nil {
+		return 0
+	}
+	return v
+}
+
+func GetFileMaxAge() int {
+	v, err := strconv.Atoi(os.Getenv("FILE_MAX_AGE"))
+	if err != nil {
+		return 0
+	}
+	return v
+}
+
 func GetMomoQRCodeURL() string {
 	return getEnv("MOMO_QRCODE_URL")
 }

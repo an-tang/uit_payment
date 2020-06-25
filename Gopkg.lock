@@ -2,6 +2,12 @@
 
 
 [[projects]]
+  name = "github.com/davecgh/go-spew"
+  packages = ["spew"]
+  revision = "8991bc29aa16c548c550c7ff78260e27b9ab7c73"
+  version = "v1.1.1"
+
+[[projects]]
   name = "github.com/jinzhu/gorm"
   packages = [".","dialects/postgres"]
   revision = "7cc9c13f20d9d41d10a2bc2888271fd723c1a567"
@@ -14,14 +20,62 @@
   version = "v1.0.0"
 
 [[projects]]
+  name = "github.com/konsorten/go-windows-terminal-sequences"
+  packages = ["."]
+  revision = "edb144dfd453055e1e49a3d8b410a660b5a87613"
+  version = "v1.0.3"
+
+[[projects]]
   name = "github.com/lib/pq"
   packages = [".","hstore","oid","scram"]
   revision = "8ae9eeaa02388a26cd5586023a0c4166c021a83d"
   version = "v1.7.0"
 
+[[projects]]
+  name = "github.com/pmezard/go-difflib"
+  packages = ["difflib"]
+  revision = "792786c7400a136282c1664665ae0a8db921c6c2"
+  version = "v1.0.0"
+
+[[projects]]
+  name = "github.com/sirupsen/logrus"
+  packages = ["."]
+  revision = "60c74ad9be0d874af0ab0daef6ab07c5c5911f0d"
+  version = "v1.6.0"
+
+[[projects]]
+  name = "github.com/stretchr/testify"
+  packages = ["assert"]
+  revision = "f654a9112bbeac49ca2cd45bfbe11533c4666cf8"
+  version = "v1.6.1"
+
+[[projects]]
+  branch = "master"
+  name = "golang.org/x/sys"
+  packages = ["internal/unsafeheader","unix"]
+  revision = "ed371f2e16b4b305ee99df548828de367527b76b"
+
+[[projects]]
+  branch = "v2"
+  name = "gopkg.in/Graylog2/go-gelf.v2"
+  packages = ["gelf"]
+  revision = "1550ee647df0510058c9d67a45c56f18911d80b8"
+
+[[projects]]
+  name = "gopkg.in/natefinch/lumberjack.v2"
+  packages = ["."]
+  revision = "a96e63847dc3c67d17befa69c303767e2f84e54f"
+  version = "v2.1"
+
+[[projects]]
+  branch = "v3"
+  name = "gopkg.in/yaml.v3"
+  packages = ["."]
+  revision = "eeeca48fe7764f320e4870d231902bf9c1be2c08"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "afba0e4a147be758617a9f73acd4f0f44741370790aae274418f4f62bc954081"
+  inputs-digest = "b7ef39b37855984beedd144039ddde2f6110e967a813e4b35ce25c2e5debbcce"
   solver-name = "gps-cdcl"
   solver-version = 1
