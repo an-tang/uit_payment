@@ -13,7 +13,7 @@ type RefundPayment struct {
 
 func NewRefundPayment() *RefundPayment {
 	return &RefundPayment{
-		PaymentService: service.NewPaymentUsecase(),
+		PaymentService: service.NewPaymentService(),
 	}
 }
 
@@ -28,7 +28,7 @@ func (rp *RefundPayment) Handle() {
 		return
 	}
 
-	resp := &response.Payment{}
+	resp := &response.CreatePaymentResponse{}
 	resp.PopulateFromModel(*mpayment)
 	rp.RenderSuccess(resp)
 }

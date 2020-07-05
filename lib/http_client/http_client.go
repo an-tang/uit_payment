@@ -13,6 +13,8 @@ import (
 	"strconv"
 
 	"uit_payment/model"
+
+	"github.com/sirupsen/logrus"
 )
 
 type HTTP struct{}
@@ -91,10 +93,12 @@ func (h *HTTP) DoRequest(method, endpoint string, params interface{}, header int
 	if params != nil {
 		data, _ = json.Marshal(params)
 	}
+
 	req, err := http.NewRequest(method, endpoint, bytes.NewBufferString(string(data)))
 	if err != nil {
 		return nil, err
 	}
+
 	req.Header.Add("Content-Type", "application/json")
 	addParamsToHeader(req, header)
 	client := &http.Client{}
@@ -102,11 +106,13 @@ func (h *HTTP) DoRequest(method, endpoint string, params interface{}, header int
 	if err != nil {
 		return nil, err
 	}
-	log.Println("====Response====", resp)
+	logrus.Info("Response\n", resp)
+
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
+
 	return body, nil
 }
 
@@ -116,8 +122,7 @@ func (h *HTTP) Post(endpoint string, contentType string, req interface{}, resp i
 		return err
 	}
 
-	fmt.Println("====Request params====\n", string(byteParam))
-
+	logrus.Info("Request", string(byteParam))
 	httpResp, err := http.Post(endpoint, contentType, bytes.NewBuffer(byteParam))
 	if err != nil {
 		return err
@@ -128,7 +133,7 @@ func (h *HTTP) Post(endpoint string, contentType string, req interface{}, resp i
 	if err != nil {
 		return err
 	}
-	fmt.Println("====Response body====\n", string(body))
+	logrus.Info("Response", string(body))
 
 	if http.StatusBadRequest <= httpResp.StatusCode && httpResp.StatusCode <= http.StatusUnavailableForLegalReasons {
 		return errors.New(string(body[:]))

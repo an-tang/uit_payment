@@ -58,17 +58,17 @@ func GetLogAge() string {
 	return getEnv("LOG_AGE")
 }
 
-func GetGraylogURL() string {
-	return getEnv("GRAYLOG_ADDRESS")
-}
+// func GetGraylogURL() string {
+// 	return getEnv("GRAYLOG_ADDRESS")
+// }
 
-func GetEnvironment() string {
-	return getEnv("ENVIRONMENT")
-}
+// func GetEnvironment() string {
+// 	return getEnv("ENVIRONMENT")
+// }
 
-func GetFacility() string {
-	return getEnv("FACILITY")
-}
+// func GetFacility() string {
+// 	return getEnv("FACILITY")
+// }
 
 func GetLogLevel() string {
 	return getEnv("LOG_LEVEL")
@@ -112,6 +112,22 @@ func GetMomoGetPaymentURL() string {
 
 func GetMomoRefundURL() string {
 	return getEnv("MOMO_REFUND_URL")
+}
+
+func GetMomoNotifyURL() string {
+	return getEnv("MOMO_NOTIFY_URL")
+}
+
+func GetMomoCreateAIOURL() string {
+	return getEnv("MOMO_AIO_URL")
+}
+
+func MomoConfirmURL() string {
+	return getEnv("MOMO_CONFIRM_URL")
+}
+
+func MomoCallbackURL() string {
+	return getEnv("MOMO_CALLBACK_URL")
 }
 
 func GetMomoPartnerCode() string {

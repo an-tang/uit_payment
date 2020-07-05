@@ -16,7 +16,7 @@ import (
 	"uit_payment/model"
 )
 
-type PaymentUsecase struct {
+type PaymentService struct {
 	PaymentClient      providers.ProviderInterface
 	Provider           providers.Provider
 	PaymentRepo        repository.PaymentRepositoryInterface
@@ -24,15 +24,15 @@ type PaymentUsecase struct {
 }
 
 // NewpaymentUsecase :
-func NewPaymentUsecase() PaymentServiceInterface {
-	return &PaymentUsecase{
+func NewPaymentService() PaymentServiceInterface {
+	return &PaymentService{
 		PaymentRepo:        repository.NewPaymentRepository(),
 		PaymentRequestRepo: paymentRequestRepo.NewPaymentRequestRepository(),
 		Provider:           provider.NewProvider(),
 	}
 }
 
-func (p *PaymentUsecase) CreatePayment(mpaymentRequest *request.CreatePaymentRequest, mpayment *model.Payment) (*model.Payment, error) {
+func (p *PaymentService) CreatePayment(mpaymentRequest *request.CreatePaymentRequest, mpayment *model.Payment) (*model.Payment, error) {
 	mpayment = p.popuplateModel(mpaymentRequest)
 	err := p.PaymentRepo.FindByTransactionID(mpayment.TransactionID, mpayment)
 	if err == nil {
@@ -40,13 +40,13 @@ func (p *PaymentUsecase) CreatePayment(mpaymentRequest *request.CreatePaymentReq
 	}
 
 	p.PaymentClient = p.Provider.GetProvider(mpayment)
-
 	paymentRequestLog, err := p.PaymentClient.CreatePayment(mpaymentRequest, mpayment)
 	if err != nil {
 		log.Printf("Create payment Error : %v", err)
 		return mpayment, err
 	}
 
+	mpayment.UID = mpayment.GenerateUID()
 	err = p.PaymentRepo.CreateWithPaymentRequest(mpayment, paymentRequestLog)
 	if err != nil {
 		log.Printf("Create payment Error : %v", err)
@@ -57,7 +57,7 @@ func (p *PaymentUsecase) CreatePayment(mpaymentRequest *request.CreatePaymentReq
 	return mpayment, nil
 }
 
-func (p *PaymentUsecase) GetPayment(transactionID string) (*model.Payment, error) {
+func (p *PaymentService) GetPayment(transactionID string) (*model.Payment, error) {
 	mpayment := &model.Payment{}
 	err := p.PaymentRepo.FindByTransactionID(transactionID, mpayment)
 	if err != nil {
@@ -109,7 +109,7 @@ func (p *PaymentUsecase) GetPayment(transactionID string) (*model.Payment, error
 	return mpayment, nil
 }
 
-func (p *PaymentUsecase) RefundPayment(transactionID string) (*model.Payment, error) {
+func (p *PaymentService) RefundPayment(transactionID string) (*model.Payment, error) {
 	mpayment := &model.Payment{}
 	err := p.PaymentRepo.FindByTransactionID(transactionID, mpayment)
 	if err != nil {
@@ -144,7 +144,7 @@ func (p *PaymentUsecase) RefundPayment(transactionID string) (*model.Payment, er
 	return mpayment, nil
 }
 
-func (p *PaymentUsecase) popuplateModel(param *request.CreatePaymentRequest) *model.Payment {
+func (p *PaymentService) popuplateModel(param *request.CreatePaymentRequest) *model.Payment {
 	return &model.Payment{
 		Currency:      param.Currency,
 		TransactionID: param.TransactionID,
@@ -155,12 +155,22 @@ func (p *PaymentUsecase) popuplateModel(param *request.CreatePaymentRequest) *mo
 	}
 }
 
-func (p *PaymentUsecase) UpdatePaid(payment *model.Payment, paymentRequest *model.PaymentRequest) error {
+func (p *PaymentService) UpdatePaid(payment *model.Payment, paymentRequest *model.PaymentRequest) error {
 	if !payment.IsPersisted() {
 		paymentRequest.Status = http.StatusBadRequest
 		p.PaymentRequestRepo.Create(paymentRequest)
 		return errors.New("Payment is persisted")
 	}
-	paymentRequest.Status = http.StatusOK
+
 	return p.PaymentRepo.UpdatePaid(payment, paymentRequest)
+}
+
+func (p *PaymentService) UpdateFailed(payment *model.Payment, paymentRequest *model.PaymentRequest) error {
+	if !payment.IsPersisted() {
+		paymentRequest.Status = http.StatusBadRequest
+		p.PaymentRequestRepo.Create(paymentRequest)
+		return errors.New("Payment is persisted")
+	}
+
+	return p.PaymentRepo.UpdateFailed(payment, paymentRequest)
 }

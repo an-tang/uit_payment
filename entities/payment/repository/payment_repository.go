@@ -20,7 +20,6 @@ func NewPaymentRepository() PaymentRepositoryInterface {
 
 func (repo *PaymentRepository) FindByTransactionID(transactionID string, obj *model.Payment) error {
 	return repo.BaseRepository.DB.
-		Preload("Partner").
 		Where(model.Payment{TransactionID: transactionID}).Last(obj).Error
 }
 

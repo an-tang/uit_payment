@@ -19,7 +19,6 @@ type Payment struct {
 	PaymentTX     string             `gorm:"column:payment_tx" json:"payment_tx"`
 	Status        enum.PaymentStatus `gorm:"column:status" json:"status"`
 	PaidAt        *time.Time         `gorm:"column:paid_at" json:"paid_at"`
-	CompletedAt   *time.Time         `gorm:"column:completed_at" json:"completed_at"`
 }
 
 // Set table name

@@ -13,7 +13,7 @@ type GetPayment struct {
 
 func NewGetPayment() *GetPayment {
 	return &GetPayment{
-		PaymentService: service.NewPaymentUsecase(),
+		PaymentService: service.NewPaymentService(),
 	}
 }
 
@@ -28,7 +28,7 @@ func (gp *GetPayment) Handle() {
 		return
 	}
 
-	resp := &response.Payment{}
+	resp := &response.CreatePaymentResponse{}
 	resp.PopulateFromModel(*payment)
 	gp.RenderSuccess(resp)
 }

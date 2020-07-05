@@ -10,6 +10,7 @@ import (
 
 	"github.com/go-playground/form"
 	"github.com/gorilla/mux"
+	"github.com/sirupsen/logrus"
 )
 
 type ErrorResponse struct {
@@ -42,7 +43,7 @@ func (handler *Handler) RenderSuccess(data interface{}) {
 	handler.Writer.Header().Set("Content-Type", "application/json")
 	handler.Writer.WriteHeader(http.StatusOK)
 	resp, _ := json.Marshal(data)
-	fmt.Printf("Response:\n%s\n", string(resp))
+	logrus.Info("Response:\n", string(resp))
 	handler.Writer.Write(resp)
 }
 
@@ -51,7 +52,7 @@ func (handler *Handler) RenderError(message string) {
 	handler.Writer.WriteHeader(http.StatusBadRequest)
 	data := response.Error{Message: message}
 	resp, _ := json.Marshal(data)
-	fmt.Printf("Response:\n%s\n", string(resp))
+	logrus.Info("Response:\n", string(resp))
 	handler.Writer.Write(resp)
 }
 
@@ -63,7 +64,7 @@ func (handler *Handler) RenderErrorWithJSON(data interface{}) {
 	handler.Writer.Header().Set("Content-Type", "application/json")
 	handler.Writer.WriteHeader(http.StatusBadRequest)
 	resp, _ := json.Marshal(data)
-	fmt.Printf("Response:\n%s\n", string(resp))
+	logrus.Info("Response:\n", string(resp))
 	handler.Writer.Write(resp)
 }
 

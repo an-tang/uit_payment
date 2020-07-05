@@ -3,18 +3,18 @@ package http
 import (
 	"uit_payment/entities/payment/delivery/request"
 	"uit_payment/entities/payment/delivery/response"
-	usecase "uit_payment/entities/payment/service"
+	service "uit_payment/entities/payment/service"
 	"uit_payment/model"
 )
 
 type CreatePayment struct {
 	Handler
-	PaymentService usecase.PaymentServiceInterface
+	PaymentService service.PaymentServiceInterface
 }
 
 func NewCreatePayment() *CreatePayment {
 	return &CreatePayment{
-		PaymentService: usecase.NewPaymentUsecase(),
+		PaymentService: service.NewPaymentService(),
 	}
 }
 
@@ -30,7 +30,7 @@ func (cp *CreatePayment) Handle() {
 		return
 	}
 
-	resp := &response.Payment{}
+	resp := &response.CreatePaymentResponse{}
 	resp.PopulateFromModel(*mpayment)
 	cp.RenderSuccess(resp)
 }

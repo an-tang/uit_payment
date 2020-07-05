@@ -10,7 +10,7 @@ type Error struct {
 	// Code    ErrorCode `json:"code"`
 }
 
-type Payment struct {
+type CreatePaymentResponse struct {
 	QrText        string             `json:"qr_text"`
 	TransactionID string             `json:"transaction_id"`
 	PaymentMethod enum.PaymentMethod `json:"payment_method"`
@@ -18,7 +18,12 @@ type Payment struct {
 	StatusValue   enum.PaymentStatus `json:"status_value"`
 }
 
-func (p *Payment) PopulateFromModel(obj model.Payment) {
+type HealthResponse struct {
+	Version   string `json:"version"`
+	Timestamp string `json:"timestamp"`
+}
+
+func (p *CreatePaymentResponse) PopulateFromModel(obj model.Payment) {
 	p.QrText = obj.QrCode
 	p.TransactionID = obj.TransactionID
 	p.PaymentMethod = obj.PaymentMethod

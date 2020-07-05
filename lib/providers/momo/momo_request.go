@@ -27,6 +27,38 @@ type MomoFieldNotifyURLRequest struct {
 	Signature      string  `json:"signature"`
 }
 
+type MomoCreateAIORequest struct {
+	AccessKey   string `json:"accessKey"`
+	PartnerCode string `json:"partnerCode"`
+	RequestType string `json:"requestType"`
+	NotifyURL   string `json:"notifyUrl"`
+	ReturnURL   string `json:"returnUrl"`
+	OrderID     string `json:"orderId"`
+	Amount      string `json:"amount"`
+	OrderInfo   string `json:"orderInfo"`
+	RequestID   string `json:"requestId"`
+	ExtraData   string `json:"extraData"`
+	Signature   string `json:"signature"`
+}
+
+type MomoAIOConfirmRequest struct {
+	PartnerCode  string `json:"partnerCode" form:"partnerCode"`
+	AccessKey    string `json:"accessKey" form:"accessKey"`
+	RequestID    string `json:"requestId" form:"requestId"`
+	Amount       string `json:"amount" form:"amount"`
+	OrderID      string `json:"orderId" form:"orderID"`
+	OrderInfo    string `json:"orderInfo" form:"orderInfo"`
+	OrderType    string `json:"orderType" form:"orderType"`
+	TransID      string `json:"transID" form:"transID"`
+	ErrorCode    int    `json:"errorCode" form:"errorCode"`
+	Message      string `json:"message" form:"message"`
+	LocalMessage string `json:"localMessage" form:"localMessage"`
+	PayType      string `json:"payType" form:"payType"`
+	ResponseTime string `json:"responseTime" form:"responseTime"`
+	ExtraData    string `json:"extraData" form:"extraData"`
+	Signature    string `json:"signature" form:"signature"`
+}
+
 type MomoPaymentRequest struct {
 	PartnerCode    string `json:"partnerCode"`
 	PartnerRefID   string `json:"partnerRefId"`
@@ -82,4 +114,14 @@ func (m *MomoNotifyURLResponse) HmacCombine() string {
 func (m *MomoPaymentRequest) HmacCombine() string {
 	return fmt.Sprintf("partnerCode=%s&partnerRefId=%s&requestType=%s&requestId=%s&momoTransId=%s",
 		m.PartnerCode, m.PartnerRefID, m.RequestType, m.RequestID, m.MomoTransID)
+}
+
+func (m *MomoCreateAIORequest) HmacCombine() string {
+	return fmt.Sprintf("partnerCode=%s&accessKey=%s&requestId=%s&amount=%s&orderId=%s&orderInfo=%s&returnUrl=%s&notifyUrl=%s&extraData=%s",
+		m.PartnerCode, m.AccessKey, m.RequestID, m.Amount, m.OrderID, m.OrderInfo, m.ReturnURL, m.NotifyURL, m.ExtraData)
+}
+
+func (m *MomoAIOConfirmRequest) HmacCombine() string {
+	return fmt.Sprintf("partnerCode=%s&accessKey=%s&requestId=%s&amount=%s&orderId=%s&orderInfo=%s&orderType=%s&transId=%s&message=%s&localMessage=%s&responseTime=%s&errorCode=%d&payType=%s&extraData=%s",
+		m.PartnerCode, m.AccessKey, m.RequestID, m.Amount, m.OrderID, m.OrderInfo, m.OrderType, m.TransID, m.Message, m.LocalMessage, m.ResponseTime, m.ErrorCode, m.PayType, m.ExtraData)
 }

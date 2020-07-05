@@ -36,18 +36,35 @@ func (mp *MomoPayment) Name() string {
 	return enum.PaymentMethodValue(enum.Momo)
 }
 
+// func (mp *MomoPayment) CreatePayment(paymentRequest *request.CreatePaymentRequest, paymentModel *model.Payment) (*model.PaymentRequest, error) {
+// 	paymentRequestLog := &model.PaymentRequest{RequestType: enum.PaymentRequestGenerateQRCode}
+// 	momoReq := mp.parseParamToCreatePaymentRequest(paymentRequest, paymentModel)
+// 	qrCode, err := generateQRCode(momoReq)
+// 	if err != nil {
+// 		paymentRequestLog.Populate(momoReq, nil, http.StatusBadRequest)
+// 		return paymentRequestLog, err
+// 	}
+
+// 	paymentModel.QrCode = qrCode
+// 	paymentModel.UID = paymentModel.GenerateUID()
+// 	paymentRequestLog.Populate(momoReq, nil, http.StatusOK)
+// 	return paymentRequestLog, nil
+// }
+
 func (mp *MomoPayment) CreatePayment(paymentRequest *request.CreatePaymentRequest, paymentModel *model.Payment) (*model.PaymentRequest, error) {
-	paymentRequestLog := &model.PaymentRequest{RequestType: enum.PaymentRequestGenerateQRCode}
-	momoReq := mp.parseParamToCreatePaymentRequest(paymentRequest, paymentModel)
-	qrCode, err := generateQRCode(momoReq)
+	paymentRequestLog := &model.PaymentRequest{RequestType: enum.PaymentRequestTypeCreate}
+	momoReq := parseParamToCreateAIOPayment(paymentRequest, paymentModel)
+	momoResp := &MomoCreateAIOResponse{}
+	endpoint := env.GetMomoCreateAIOURL()
+
+	err := mp.HTTPClient.Post(endpoint, "application/json", momoReq, momoResp)
 	if err != nil {
-		paymentRequestLog.Populate(momoReq, nil, http.StatusBadRequest)
+		paymentRequestLog.Populate(momoReq, momoResp, http.StatusBadRequest)
 		return paymentRequestLog, err
 	}
 
-	paymentModel.QrCode = qrCode
-	paymentModel.UID = paymentModel.GenerateUID()
-	paymentRequestLog.Populate(momoReq, nil, http.StatusOK)
+	paymentModel.QrCode = momoResp.PayURL
+	paymentModel.PaymentTX = momoResp.RequestID
 	return paymentRequestLog, nil
 }
 
@@ -168,4 +185,23 @@ func (mp *MomoPayment) parseParamToRefundRequest(paymentModel *model.Payment) (M
 		Version:     env.GetMomoVersion(),
 	}
 	return *refundPaymentReq, nil
+}
+
+func parseParamToCreateAIOPayment(paymentRequest *request.CreatePaymentRequest, paymentModel *model.Payment) MomoCreateAIORequest {
+	request := MomoCreateAIORequest{
+		AccessKey:   env.GetMomoAccessKey(),
+		PartnerCode: env.GetMomoPartnerCode(),
+		RequestID:   paymentModel.GenerateUID(),
+		Amount:      fmt.Sprintf("%v", paymentModel.Amount),
+		NotifyURL:   fmt.Sprintf("%s%s", env.MomoCallbackURL(), "/momo/confirm"),
+		OrderID:     paymentModel.TransactionID,
+		OrderInfo:   paymentRequest.TourName,
+		RequestType: "captureMoMoWallet",
+		ReturnURL:   env.UitTravelURL(),
+	}
+
+	hmacData := request.HmacCombine()
+	request.Signature = hmac.HexStringEncode(hmac.SHA256, env.GetMomoSecretKey(), hmacData)
+
+	return request
 }

@@ -15,7 +15,6 @@ import (
 	libtime "uit_payment/lib/lib_time"
 
 	"github.com/sirupsen/logrus"
-	"gopkg.in/Graylog2/go-gelf.v2/gelf"
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
@@ -71,26 +70,26 @@ func NewGrayLogWritter(statusCode int) io.Writer {
 	log.SetOutput(mw)
 	logrus.SetOutput(mw)
 
-	graylogAddr := env.GetGraylogURL()
-	if graylogAddr == "" {
-		mw := io.MultiWriter(os.Stdout, rotateLog)
-		log.SetOutput(mw)
-		log.Fatalf("Graylog address is undenfined")
-		return nil
-	}
+	// graylogAddr := env.GetGraylogURL()
+	// if graylogAddr == "" {
+	// 	mw := io.MultiWriter(os.Stdout, rotateLog)
+	// 	log.SetOutput(mw)
+	// 	log.Fatalf("Graylog address is undenfined")
+	// 	return nil
+	// }
 
-	gelfWriter, err := gelf.NewUDPWriter(graylogAddr)
-	if err != nil {
-		mw := io.MultiWriter(os.Stdout, rotateLog)
-		log.SetOutput(mw)
-		logrus.SetOutput(mw)
-		log.Fatalf("gelf.NewUDPWriter: %s", err)
-	} else {
-		gelfWriter.Facility = fmt.Sprintf("%s-%s", env.GetFacility(), env.GetEnvironment())
-		mw := io.MultiWriter(os.Stdout, rotateLog, gelfWriter)
-		logrus.SetOutput(mw)
-		log.SetOutput(io.MultiWriter(os.Stdout, rotateLog))
-	}
+	// gelfWriter, err := gelf.NewUDPWriter(graylogAddr)
+	// if err != nil {
+	// 	mw := io.MultiWriter(os.Stdout, rotateLog)
+	// 	log.SetOutput(mw)
+	// 	logrus.SetOutput(mw)
+	// 	log.Fatalf("gelf.NewUDPWriter: %s", err)
+	// } else {
+	// 	gelfWriter.Facility = fmt.Sprintf("%s-%s", env.GetFacility(), env.GetEnvironment())
+	// 	mw := io.MultiWriter(os.Stdout, rotateLog, gelfWriter)
+	// 	logrus.SetOutput(mw)
+	// 	log.SetOutput(io.MultiWriter(os.Stdout, rotateLog))
+	// }
 
 	logLevel, err := logrus.ParseLevel(env.GetLogLevel())
 	if err != nil {
@@ -98,7 +97,7 @@ func NewGrayLogWritter(statusCode int) io.Writer {
 	}
 	logrus.SetLevel(logLevel)
 
-	return gelfWriter
+	return mw
 }
 
 func (l *GrayLogLogging) Logger(next http.Handler) http.Handler {
