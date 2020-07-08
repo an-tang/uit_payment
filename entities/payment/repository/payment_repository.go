@@ -99,25 +99,6 @@ func (repo *PaymentRepository) UpdateFailed(obj *model.Payment, paymentRequest *
 	return nil
 }
 
-func (repo *PaymentRepository) UpdateWaitingForPayment(obj *model.Payment, paymentRequest *model.PaymentRequest) error {
-	obj.Status = enum.PaymentStatusWaitingForPayment
-	tx := repo.BaseRepository.DB.Begin()
-
-	if err := tx.Model(obj).Update(obj).Error; err != nil {
-		tx.Rollback()
-		return err
-	}
-
-	paymentRequest.PaymentID = obj.ID
-	if err := tx.Create(paymentRequest).Error; err != nil {
-		tx.Rollback()
-		return err
-	}
-
-	tx.Commit()
-	return nil
-}
-
 func (repo *PaymentRepository) UpdateRefunded(obj *model.Payment, paymentRequest *model.PaymentRequest) error {
 	obj.Status = enum.PaymentStatusRefund
 
