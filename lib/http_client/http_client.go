@@ -139,6 +139,10 @@ func (h *HTTP) Post(endpoint string, contentType string, req interface{}, resp i
 		return errors.New(string(body[:]))
 	}
 
+	if resp == nil {
+		return nil
+	}
+
 	err = json.Unmarshal(body[:], resp)
 	if err != nil {
 		return err

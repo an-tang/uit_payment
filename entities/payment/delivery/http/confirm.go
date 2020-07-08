@@ -14,8 +14,6 @@ import (
 	log "uit_payment/lib/logging"
 	"uit_payment/lib/providers/momo"
 	"uit_payment/model"
-
-	"github.com/sirupsen/logrus"
 )
 
 const capture string = "capture"
@@ -39,7 +37,6 @@ func NewConfirm() *Confirm {
 }
 
 func (this *Confirm) Handle() {
-	logrus.Warning("====Start=====")
 	params := &momo.MomoFieldNotifyURLRequest{}
 	this.ParseParam(&params)
 

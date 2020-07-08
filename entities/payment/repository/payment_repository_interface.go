@@ -10,6 +10,5 @@ type PaymentRepositoryInterface interface {
 	FindByTransactionID(transactionID string, obj *model.Payment) error
 	FindByPaymentTX(PaymentTX string, obj *model.Payment) error
 	UpdateRefunded(obj *model.Payment, paymentRequest *model.PaymentRequest) error
-	UpdateWaitingForPayment(obj *model.Payment, paymentRequest *model.PaymentRequest) error
 	Update(obj *model.Payment) error
 }

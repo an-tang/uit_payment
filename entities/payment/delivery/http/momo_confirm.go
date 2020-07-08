@@ -1,6 +1,8 @@
 package http
 
 import (
+	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 	"uit_payment/entities/payment/delivery/request"
@@ -40,9 +42,9 @@ func (m *MomoConfirm) Handle() {
 	m.ParseParam(&params)
 
 	payment := &model.Payment{}
-	err := m.PaymentRepo.FindByTransactionID(params.TransID, payment)
+	err := m.PaymentRepo.FindByPaymentTX(params.RequestID, payment)
 	if err != nil {
-		log.WithError(err).Errorln("MomoConfirm.CannotFindTransaction: " + params.TransID)
+		log.WithError(err).Errorln("MomoConfirm.CannotFindTransaction: " + params.RequestID)
 		return
 	}
 
@@ -55,7 +57,7 @@ func (m *MomoConfirm) Handle() {
 	}
 
 	paymentRequestLog.Populate(params, req, http.StatusOK)
-	go m.callbackPartner(params)
+	go m.callbackPartner(params, payment)
 	go m.updatePayment(payment, paymentRequestLog, params)
 }
 
@@ -76,7 +78,7 @@ func parseConfirm(req momo.MomoAIOConfirmRequest) momo.MomoAIOConfirmResponse {
 	return resp
 }
 
-func (m *MomoConfirm) callbackPartner(params *momo.MomoAIOConfirmRequest) {
+func (m *MomoConfirm) callbackPartner(params *momo.MomoAIOConfirmRequest, payment *model.Payment) {
 	amount, err := strconv.ParseFloat(params.Amount, 32)
 	if err != nil {
 		logrus.WithError(err).Errorln("MomoConfirm.ConvertAmountError:", err.Error())
@@ -84,7 +86,7 @@ func (m *MomoConfirm) callbackPartner(params *momo.MomoAIOConfirmRequest) {
 	}
 
 	req := request.CallbackPartnerRequest{
-		TransactionID: params.TransID,
+		TransactionID: payment.TransactionID,
 		Amount:        float32(amount),
 		Status:        enum.PaymentStatusPaid,
 	}
@@ -93,7 +95,9 @@ func (m *MomoConfirm) callbackPartner(params *momo.MomoAIOConfirmRequest) {
 		req.Status = enum.PaymentStatusFailed
 	}
 
-	err = m.HTTPClient.Post(env.UitTravelURL(), "application/json", req, nil)
+	err = m.HTTPClient.Post(env.UitTravelURL()+"/callback", "application/json", req, nil)
+	a, _ := json.Marshal(req)
+	fmt.Println(string(a))
 	if err != nil {
 		logrus.WithError(err).Errorln("MomoConfirm.CallbackPartnerError:", err.Error())
 	}

@@ -93,14 +93,6 @@ func (p *PaymentService) GetPayment(transactionID string) (*model.Payment, error
 		return mpayment, nil
 	}
 
-	if mpayment.Status == enum.PaymentStatusWaitingForPayment {
-		err = p.PaymentRepo.UpdateWaitingForPayment(mpayment, paymentRequestLog)
-		if err != nil {
-			return nil, err
-		}
-		return mpayment, nil
-	}
-
 	err = p.PaymentRepo.UpdateFailed(mpayment, paymentRequestLog)
 	if err != nil {
 		return mpayment, err
@@ -146,11 +138,11 @@ func (p *PaymentService) RefundPayment(transactionID string) (*model.Payment, er
 
 func (p *PaymentService) popuplateModel(param *request.CreatePaymentRequest) *model.Payment {
 	return &model.Payment{
-		Currency:      param.Currency,
+		Currency:      "VND",
 		TransactionID: param.TransactionID,
-		PaymentMethod: param.PaymentMethod,
+		PaymentMethod: 100,
 		Amount:        param.Amount,
-		StoreID:       param.StoreID,
+		StoreID:       "1001",
 		Status:        1,
 	}
 }

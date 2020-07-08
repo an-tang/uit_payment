@@ -4,7 +4,6 @@ type PaymentStatus int
 
 const (
 	PaymentStatusNew PaymentStatus = iota + 1
-	PaymentStatusWaitingForPayment
 	PaymentStatusPaid
 	PaymentStatusRefund
 	PaymentStatusFailed
@@ -14,8 +13,6 @@ func PaymentStatusValue(str string) PaymentStatus {
 	switch str {
 	case "new":
 		return PaymentStatusNew
-	case "waiting_for_payment":
-		return PaymentStatusWaitingForPayment
 	case "paid", "success":
 		return PaymentStatusPaid
 	case "refund":
