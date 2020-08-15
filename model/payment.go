@@ -19,6 +19,7 @@ type Payment struct {
 	PaymentTX     string             `gorm:"column:payment_tx" json:"payment_tx"`
 	Status        enum.PaymentStatus `gorm:"column:status" json:"status"`
 	PaidAt        *time.Time         `gorm:"column:paid_at" json:"paid_at"`
+	PartnerID     int                `gorm:"column:partner_id" json:"partner_id"`
 }
 
 // Set table name

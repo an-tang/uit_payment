@@ -1,10 +1,9 @@
 package http
 
 import (
-	"encoding/json"
-	"fmt"
 	"net/http"
 	"strconv"
+
 	"uit_payment/entities/payment/delivery/request"
 	repository "uit_payment/entities/payment/repository"
 	service "uit_payment/entities/payment/service"
@@ -96,8 +95,6 @@ func (m *MomoConfirm) callbackPartner(params *momo.MomoAIOConfirmRequest, paymen
 	}
 
 	err = m.HTTPClient.Post(env.UitTravelURL()+"/callback", "application/json", req, nil)
-	a, _ := json.Marshal(req)
-	fmt.Println(string(a))
 	if err != nil {
 		logrus.WithError(err).Errorln("MomoConfirm.CallbackPartnerError:", err.Error())
 	}

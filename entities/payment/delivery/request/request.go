@@ -9,6 +9,8 @@ type CreatePaymentRequest struct {
 	PaymentMethod enum.PaymentMethod `json:"payment_method"`
 	StoreID       string             `json:"store_id"`
 	TourName      string             `json:"tour_name"`
+	PartnerKey    string             `json:"key"`
+	Token         string             `json:"token"`
 }
 
 type CallbackPartnerRequest struct {

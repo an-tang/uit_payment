@@ -9,7 +9,7 @@ type PaymentRequestRepository struct {
 	baseRepo.BaseRepository
 }
 
-func NewPaymentRequestRepository() *PaymentRequestRepository {
+func NewPaymentRequestRepository() PaymentRequestRepositoryInterface {
 	repo := &PaymentRequestRepository{}
 	repo.Init()
 	return repo

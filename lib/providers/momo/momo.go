@@ -193,12 +193,12 @@ func parseParamToCreateAIOPayment(paymentRequest *request.CreatePaymentRequest, 
 		AccessKey:   env.GetMomoAccessKey(),
 		PartnerCode: env.GetMomoPartnerCode(),
 		RequestID:   paymentModel.GenerateUID(),
-		Amount:      fmt.Sprintf("%v", int(paymentModel.Amount)),
+		Amount:      fmt.Sprintf("%v", int(paymentModel.Amount)/1000),
 		NotifyURL:   fmt.Sprintf("%s%s", env.MomoCallbackURL(), "/momo/confirm"),
 		OrderID:     paymentModel.TransactionID,
 		OrderInfo:   paymentRequest.TourName,
 		RequestType: "captureMoMoWallet",
-		ReturnURL:   fmt.Sprintf("%s/order_confirmation?id=%s", env.UitTravelURL(), paymentModel.TransactionID),
+		ReturnURL:   fmt.Sprintf("%s/order-confirmation?id=%s&token=%s", env.UitTravelURL(), paymentModel.TransactionID, paymentRequest.Token),
 	}
 
 	hmacData := request.HmacCombine()

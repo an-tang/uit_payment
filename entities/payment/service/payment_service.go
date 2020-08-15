@@ -6,14 +6,16 @@ import (
 	"log"
 	"net/http"
 
+	partnerRepo "uit_payment/entities/partner"
 	"uit_payment/entities/payment/delivery/request"
 	repository "uit_payment/entities/payment/repository"
 	paymentRequestRepo "uit_payment/entities/payment_request/repository"
-
 	"uit_payment/enum"
 	"uit_payment/lib/providers"
 	"uit_payment/lib/providers/provider"
 	"uit_payment/model"
+
+	"github.com/sirupsen/logrus"
 )
 
 type PaymentService struct {
@@ -21,6 +23,7 @@ type PaymentService struct {
 	Provider           providers.Provider
 	PaymentRepo        repository.PaymentRepositoryInterface
 	PaymentRequestRepo paymentRequestRepo.PaymentRequestRepositoryInterface
+	PartnerRepo        partnerRepo.PartnerRepositoryInterface
 }
 
 // NewpaymentUsecase :
@@ -28,12 +31,17 @@ func NewPaymentService() PaymentServiceInterface {
 	return &PaymentService{
 		PaymentRepo:        repository.NewPaymentRepository(),
 		PaymentRequestRepo: paymentRequestRepo.NewPaymentRequestRepository(),
+		PartnerRepo:        partnerRepo.NewPartnerRepository(),
 		Provider:           provider.NewProvider(),
 	}
 }
 
 func (p *PaymentService) CreatePayment(mpaymentRequest *request.CreatePaymentRequest, mpayment *model.Payment) (*model.Payment, error) {
 	mpayment = p.popuplateModel(mpaymentRequest)
+	if mpayment.PartnerID == 0 {
+		return mpayment, fmt.Errorf("Cannot verify partner key: %s", mpaymentRequest.PartnerKey)
+	}
+
 	err := p.PaymentRepo.FindByTransactionID(mpayment.TransactionID, mpayment)
 	if err == nil {
 		return mpayment, fmt.Errorf("TransactionID Exist: %s", mpayment.TransactionID)
@@ -137,6 +145,8 @@ func (p *PaymentService) RefundPayment(transactionID string) (*model.Payment, er
 }
 
 func (p *PaymentService) popuplateModel(param *request.CreatePaymentRequest) *model.Payment {
+	partner := p.findPartnerByKey(param.PartnerKey)
+
 	return &model.Payment{
 		Currency:      "VND",
 		TransactionID: param.TransactionID,
@@ -144,6 +154,7 @@ func (p *PaymentService) popuplateModel(param *request.CreatePaymentRequest) *mo
 		Amount:        param.Amount,
 		StoreID:       "1001",
 		Status:        1,
+		PartnerID:     partner.ID,
 	}
 }
 
@@ -165,4 +176,15 @@ func (p *PaymentService) UpdateFailed(payment *model.Payment, paymentRequest *mo
 	}
 
 	return p.PaymentRepo.UpdateFailed(payment, paymentRequest)
+}
+
+func (p *PaymentService) findPartnerByKey(key string) model.Partner {
+	partner := &model.Partner{}
+	err := p.PartnerRepo.FindByKey(key, partner)
+	if err != nil {
+		logrus.Errorln("PaymentService.findPartnerByKey:", err.Error())
+		return model.Partner{}
+	}
+
+	return *partner
 }
