@@ -1,0 +1,25 @@
+syntax = "proto3";
+package payment.api;
+
+message CreatePaymentRequest {
+  string transaction_id = 1;
+  float amount = 2;
+  int32 payment_method = 3;
+  string store_id = 4;
+  string prodduct = 5;
+  string partner_key = 6;
+  string token = 7;
+}
+
+message CreatePaymentResponse {
+  string qr_text = 1;
+  string transaction_id = 2;
+  int32 payment_method = 3;
+  string status = 4;
+  int32 status_value = 5;
+}
+
+service PaymentService {
+  // create payment
+  rpc CreatePayment(CreatePaymentRequest) returns (CreatePaymentResponse);
+}

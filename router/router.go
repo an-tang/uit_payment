@@ -3,7 +3,7 @@ package router
 import (
 	"context"
 
-	handler "uit_payment/entities/payment/delivery/http"
+	handler "uit_payment/entities/payment/delivery/rest"
 	"uit_payment/lib/logging"
 
 	"github.com/gorilla/mux"

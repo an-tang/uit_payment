@@ -3,7 +3,7 @@ package enum
 type PaymentMethod int
 
 const (
-	Momo PaymentMethod = iota + 100
+	Momo PaymentMethod = iota + 200
 )
 
 func PaymentMethodValue(pm PaymentMethod) string {
@@ -13,5 +13,14 @@ func PaymentMethodValue(pm PaymentMethod) string {
 		return "Momo"
 	default:
 		return ""
+	}
+}
+
+func PaymentMethodMapping(e int) PaymentMethod {
+	switch e {
+	case 200:
+		return Momo
+	default:
+		return Momo
 	}
 }

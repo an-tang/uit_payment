@@ -3,6 +3,7 @@ package response
 import (
 	"uit_payment/enum"
 	"uit_payment/model"
+	payment_api "uit_payment/services/payment"
 )
 
 type Error struct {
@@ -29,4 +30,14 @@ func (p *CreatePaymentResponse) PopulateFromModel(obj model.Payment) {
 	p.PaymentMethod = obj.PaymentMethod
 	p.Status = obj.Status.String()
 	p.StatusValue = obj.Status
+}
+
+func PopulategRPCCreatePayment(payment model.Payment) payment_api.CreatePaymentResponse {
+	return payment_api.CreatePaymentResponse{
+		QrText:        payment.QrCode,
+		TransactionId: payment.TransactionID,
+		PaymentMethod: int32(payment.PaymentMethod),
+		Status:        payment.Status.String(),
+		StatusValue:   int32(payment.Status),
+	}
 }

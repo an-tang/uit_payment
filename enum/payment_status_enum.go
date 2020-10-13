@@ -11,13 +11,13 @@ const (
 
 func PaymentStatusValue(str string) PaymentStatus {
 	switch str {
-	case "new":
+	case "NEW":
 		return PaymentStatusNew
-	case "paid", "success":
+	case "PAID", "SUCCESS":
 		return PaymentStatusPaid
-	case "refund":
+	case "REFUND":
 		return PaymentStatusRefund
-	case "failed", "pending", "bad_debt":
+	case "FAILED":
 		return PaymentStatusFailed
 	default:
 		return 0
@@ -25,5 +25,5 @@ func PaymentStatusValue(str string) PaymentStatus {
 }
 
 func (e PaymentStatus) String() string {
-	return [...]string{"unknown", "new", "paid", "refund", "failed", "waiting_for_payment"}[e]
+	return [...]string{"unknown", "NEW", "PAID", "REFUND", "FAILED", "WAITING_FOR_PAYMENT"}[e]
 }

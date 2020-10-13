@@ -2,9 +2,9 @@ package database
 
 import (
 	"fmt"
-	"log"
 
 	"uit_payment/lib/env"
+	"uit_payment/lib/logging"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
@@ -19,7 +19,7 @@ var PG database
 func (d *database) GetInstance() *gorm.DB {
 	if db == nil {
 		db = d.initDatabase()
-		log.Printf("Database connected")
+		logging.Println("Database connected")
 	}
 	return db
 }

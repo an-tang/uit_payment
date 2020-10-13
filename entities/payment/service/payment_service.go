@@ -36,112 +36,99 @@ func NewPaymentService() PaymentServiceInterface {
 	}
 }
 
-func (p *PaymentService) CreatePayment(mpaymentRequest *request.CreatePaymentRequest, mpayment *model.Payment) (*model.Payment, error) {
-	mpayment = p.popuplateModel(mpaymentRequest)
-	if mpayment.PartnerID == 0 {
-		return mpayment, fmt.Errorf("Cannot verify partner key: %s", mpaymentRequest.PartnerKey)
+func (p *PaymentService) CreatePayment(paymentRequest *request.CreatePaymentRequest, payment *model.Payment) (*model.Payment, error) {
+	payment = p.popuplateModel(paymentRequest)
+	if payment.PartnerID == 0 {
+		return payment, fmt.Errorf("Cannot verify partner key: %s", paymentRequest.PartnerKey)
 	}
 
-	err := p.PaymentRepo.FindByTransactionID(mpayment.TransactionID, mpayment)
+	err := p.PaymentRepo.FindByTransactionID(payment.TransactionID, payment)
 	if err == nil {
-		return mpayment, fmt.Errorf("TransactionID Exist: %s", mpayment.TransactionID)
+		return payment, fmt.Errorf("TransactionID Exist: %s", payment.TransactionID)
 	}
 
-	p.PaymentClient = p.Provider.GetProvider(mpayment)
-	paymentRequestLog, err := p.PaymentClient.CreatePayment(mpaymentRequest, mpayment)
+	p.PaymentClient = p.Provider.GetProvider(payment)
+	paymentRequestLog, err := p.PaymentClient.CreatePayment(paymentRequest, payment)
 	if err != nil {
-		log.Printf("Create payment Error : %v", err)
-		return mpayment, err
+		return payment, err
 	}
 
-	mpayment.UID = mpayment.GenerateUID()
-	err = p.PaymentRepo.CreateWithPaymentRequest(mpayment, paymentRequestLog)
+	payment.UID = payment.GenerateUID()
+	err = p.PaymentRepo.CreateWithPaymentRequest(payment, paymentRequestLog)
 	if err != nil {
-		log.Printf("Create payment Error : %v", err)
-		return mpayment, err
+		return payment, err
 	}
 
-	log.Printf("Create payment: %v", mpayment)
-	return mpayment, nil
+	log.Printf("Create payment: %v", payment)
+	return payment, nil
 }
 
 func (p *PaymentService) GetPayment(transactionID string) (*model.Payment, error) {
-	mpayment := &model.Payment{}
-	err := p.PaymentRepo.FindByTransactionID(transactionID, mpayment)
+	payment := &model.Payment{}
+	err := p.PaymentRepo.FindByTransactionID(transactionID, payment)
 	if err != nil {
 		return nil, err
 	}
-	if !mpayment.IsPersisted() {
+	if !payment.IsPersisted() {
 		return nil, fmt.Errorf("Invalid %s", transactionID)
 	}
 
-	if mpayment.Status == enum.PaymentStatusPaid || mpayment.Status == enum.PaymentStatusRefund {
-		return mpayment, nil
+	if payment.Status == enum.PaymentStatusPaid || payment.Status == enum.PaymentStatusRefund {
+		return payment, nil
 	}
 
-	p.PaymentClient = p.Provider.GetProvider(mpayment)
+	p.PaymentClient = p.Provider.GetProvider(payment)
 
-	paymentRequestLog, err := p.PaymentClient.GetPayment(mpayment)
+	paymentRequestLog, err := p.PaymentClient.GetPayment(payment)
 
 	if err != nil {
-		log.Printf("Get payment Error : %v", err)
-		return mpayment, err
+		return payment, err
 	}
 
-	if mpayment.Status == enum.PaymentStatusNew {
+	if payment.Status == enum.PaymentStatusNew {
 		p.PaymentRequestRepo.Create(paymentRequestLog)
-		return mpayment, nil
+		return payment, nil
 	}
 
-	if mpayment.Status == enum.PaymentStatusPaid {
-		err = p.PaymentRepo.UpdatePaid(mpayment, paymentRequestLog)
+	if payment.Status == enum.PaymentStatusPaid {
+		err = p.PaymentRepo.UpdatePaid(payment, paymentRequestLog)
 		if err != nil {
 			return nil, err
 		}
-		return mpayment, nil
+		return payment, nil
 	}
 
-	err = p.PaymentRepo.UpdateFailed(mpayment, paymentRequestLog)
+	err = p.PaymentRepo.UpdateFailed(payment, paymentRequestLog)
 	if err != nil {
-		return mpayment, err
+		return payment, err
 	}
 
-	return mpayment, nil
+	return payment, nil
 }
 
 func (p *PaymentService) RefundPayment(transactionID string) (*model.Payment, error) {
-	mpayment := &model.Payment{}
-	err := p.PaymentRepo.FindByTransactionID(transactionID, mpayment)
+	payment := &model.Payment{}
+	err := p.PaymentRepo.FindByTransactionID(transactionID, payment)
 	if err != nil {
 		return nil, err
 	}
 
-	if !mpayment.IsPersisted() {
+	if !payment.IsPersisted() {
 		return nil, fmt.Errorf("Invalid %s", transactionID)
 	}
 
-	p.PaymentClient = p.Provider.GetProvider(mpayment)
-	paymentRequestLog, err := p.PaymentClient.RefundPayment(mpayment)
+	p.PaymentClient = p.Provider.GetProvider(payment)
+	paymentRequestLog, err := p.PaymentClient.RefundPayment(payment)
 	if err != nil {
-		err2 := p.PaymentRequestRepo.Create(paymentRequestLog)
-		if err2 != nil {
-			return mpayment, err2
-		}
-		return mpayment, err
-
+		return payment, err
 	}
 
-	err = p.PaymentRepo.UpdateRefunded(mpayment, paymentRequestLog)
+	err = p.PaymentRepo.UpdateRefunded(payment, paymentRequestLog)
 	if err != nil {
-		err2 := p.PaymentRequestRepo.Create(paymentRequestLog)
-		log.Printf("====Payment===%v", err2)
-		if err2 != nil {
-			return mpayment, err2
-		}
-		return mpayment, err
-
+		return payment, err
 	}
-	return mpayment, nil
+
+	return payment, nil
 }
 
 func (p *PaymentService) popuplateModel(param *request.CreatePaymentRequest) *model.Payment {
@@ -150,10 +137,10 @@ func (p *PaymentService) popuplateModel(param *request.CreatePaymentRequest) *mo
 	return &model.Payment{
 		Currency:      "VND",
 		TransactionID: param.TransactionID,
-		PaymentMethod: 100,
+		PaymentMethod: param.PaymentMethod,
 		Amount:        param.Amount,
-		StoreID:       "1001",
-		Status:        1,
+		StoreID:       param.StoreID,
+		Status:        enum.PaymentStatusNew,
 		PartnerID:     partner.ID,
 	}
 }

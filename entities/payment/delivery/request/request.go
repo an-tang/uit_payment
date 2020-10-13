@@ -8,7 +8,7 @@ type CreatePaymentRequest struct {
 	Currency      string             `json:"currency"`
 	PaymentMethod enum.PaymentMethod `json:"payment_method"`
 	StoreID       string             `json:"store_id"`
-	TourName      string             `json:"tour_name"`
+	Product       string             `json:"product"`
 	PartnerKey    string             `json:"key"`
 	Token         string             `json:"token"`
 }
