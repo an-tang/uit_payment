@@ -10,5 +10,4 @@ import (
 func main() {
 	go grpc.RunGRPCServer(context.TODO(), 9002)
 	rest.RunServer(8081)
-
 }

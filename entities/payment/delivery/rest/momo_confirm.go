@@ -1,9 +1,11 @@
 package http
 
 import (
+	"context"
 	"net/http"
 	"strconv"
 
+	partnerRepo "uit_payment/entities/partner"
 	"uit_payment/entities/payment/delivery/request"
 	repository "uit_payment/entities/payment/repository"
 	service "uit_payment/entities/payment/service"
@@ -15,6 +17,7 @@ import (
 	log "uit_payment/lib/logging"
 	"uit_payment/lib/providers/momo"
 	"uit_payment/model"
+	dom_api "uit_payment/services/dom"
 
 	"github.com/sirupsen/logrus"
 )
@@ -24,6 +27,8 @@ type MomoConfirm struct {
 	PaymentService     service.PaymentServiceInterface
 	PaymentRepo        repository.PaymentRepositoryInterface
 	PaymentRequestRepo paymentRequestRepo.PaymentRequestRepositoryInterface
+	PartnerRepo        partnerRepo.PartnerRepositoryInterface
+	DOMService         dom_api.DOMServiceInterface
 	HTTPClient         httpclient.HTTPCInterface
 }
 
@@ -33,6 +38,7 @@ func NewMomoConfirm() *MomoConfirm {
 		PaymentRequestRepo: paymentRequestRepo.NewPaymentRequestRepository(),
 		PaymentService:     service.NewPaymentService(),
 		HTTPClient:         httpclient.HTTPInstance(),
+		DOMService:         dom_api.NewDOMService(),
 	}
 }
 
@@ -56,7 +62,9 @@ func (m *MomoConfirm) Handle() {
 	}
 
 	paymentRequestLog.Populate(params, req, http.StatusOK)
-	go m.callbackPartner(params, payment)
+	// go m.callbackPartner(params, payment)
+	go m.callbackgRPC(*payment)
+
 	go m.updatePayment(payment, paymentRequestLog, params)
 }
 
@@ -94,7 +102,13 @@ func (m *MomoConfirm) callbackPartner(params *momo.MomoAIOConfirmRequest, paymen
 		req.Status = enum.PaymentStatusFailed
 	}
 
-	err = m.HTTPClient.Post(env.UitTravelURL()+"/callback", "application/json", req, nil)
+	partner, err := m.PartnerRepo.FindByID(payment.PartnerID)
+	if err != nil {
+		logrus.WithError(err).Errorln("FindPartnerError:", err.Error())
+	}
+
+	endpoint := partner.CallbackURL
+	err = m.HTTPClient.Post(endpoint, "application/json", req, nil)
 	if err != nil {
 		logrus.WithError(err).Errorln("MomoConfirm.CallbackPartnerError:", err.Error())
 	}
@@ -106,4 +120,9 @@ func (m *MomoConfirm) updatePayment(payment *model.Payment, paymentRequestLog *m
 	} else {
 		m.PaymentService.UpdatePaid(payment, paymentRequestLog)
 	}
+}
+
+func (m *MomoConfirm) callbackgRPC(payment model.Payment) {
+	payment.Status = enum.PaymentStatusPaid
+	m.DOMService.PaymentCallback(context.TODO(), payment)
 }

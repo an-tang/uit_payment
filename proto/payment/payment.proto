@@ -9,6 +9,7 @@ message CreatePaymentRequest {
   string prodduct = 5;
   string partner_key = 6;
   string token = 7;
+  string redirect_url = 8;
 }
 
 message CreatePaymentResponse {

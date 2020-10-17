@@ -3,7 +3,7 @@
 CREATE TABLE "payments" (
   "id" serial primary key,
   "uid" varchar(40) not null,
-  "transaction_id" varchar(32) not null,
+  "transaction_id" text not null,
   "payment_method" integer not null,
   "amount" decimal not null,
   "currency" varchar(3),

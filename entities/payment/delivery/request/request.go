@@ -11,6 +11,7 @@ type CreatePaymentRequest struct {
 	Product       string             `json:"product"`
 	PartnerKey    string             `json:"key"`
 	Token         string             `json:"token"`
+	RedirectURL   string             `json:"redirect_url"`
 }
 
 type CallbackPartnerRequest struct {

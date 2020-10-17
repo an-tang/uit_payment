@@ -14,7 +14,6 @@ import (
 )
 
 func RunServer(port int) {
-	wait := time.Second * 5
 	rootContext := context.Background()
 
 	r := router.Init(rootContext)
@@ -22,9 +21,9 @@ func RunServer(port int) {
 	srv := &http.Server{
 		Addr: fmt.Sprintf("0.0.0.0:%d", port),
 		// Good practice to set timeouts to avoid Slowloris attacks.
-		WriteTimeout: time.Second * 15,
-		ReadTimeout:  time.Second * 15,
-		IdleTimeout:  time.Second * 60,
+		WriteTimeout: 15 * time.Second,
+		ReadTimeout:  15 * time.Second,
+		IdleTimeout:  60 * time.Second,
 		Handler:      r, // Pass our instance of gorilla/mux in.
 	}
 
@@ -40,7 +39,7 @@ func RunServer(port int) {
 	<-quit
 	logging.Println("shutdown REST server ...")
 
-	ctx, cancel := context.WithTimeout(context.Background(), wait)
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
 	if err := srv.Shutdown(ctx); err != nil {
 		logging.Fatalln("REST server shutdown:", err)
@@ -48,7 +47,7 @@ func RunServer(port int) {
 
 	select {
 	case <-ctx.Done():
-		logging.Println("timeout of 3 seconds.")
+		logging.Println("timeout of 1 seconds.")
 	}
 
 	logging.Println("server exiting")

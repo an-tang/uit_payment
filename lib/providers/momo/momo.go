@@ -198,7 +198,7 @@ func parseParamToCreateAIOPayment(paymentRequest *request.CreatePaymentRequest, 
 		OrderID:     paymentModel.TransactionID,
 		OrderInfo:   paymentRequest.Product,
 		RequestType: "captureMoMoWallet",
-		ReturnURL:   fmt.Sprintf("%s/order-confirmation?id=%s&token=%s", env.UitTravelURL(), paymentModel.TransactionID, paymentRequest.Token),
+		ReturnURL:   paymentRequest.RedirectURL,
 	}
 
 	hmacData := request.HmacCombine()
