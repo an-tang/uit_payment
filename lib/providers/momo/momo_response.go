@@ -61,14 +61,17 @@ type MomoRefundResponse struct {
 }
 
 type MomoCreateAIOResponse struct {
-	RequestID    string `json:"requestId"`
-	ErrorCode    int    `json:"errorCode"`
-	OrderID      string `json:"orderId"`
-	Message      string `json:"message"`
-	LocalMessage string `json:"localMessage"`
-	RequestType  string `json:"requestType"`
-	PayURL       string `json:"payUrl"`
-	Signature    string `json:"signature"`
+	RequestID        string `json:"requestId"`
+	ErrorCode        int    `json:"errorCode"`
+	OrderID          string `json:"orderId"`
+	Message          string `json:"message"`
+	LocalMessage     string `json:"localMessage"`
+	RequestType      string `json:"requestType"`
+	PayURL           string `json:"payUrl"`
+	Signature        string `json:"signature"`
+	QrCodeURL        string `json:"qrCodeUrl"`
+	Deeplink         string `json:"deeplink"`
+	DeeplinkWebInApp string `json:"deeplinkWebInApp"`
 }
 
 type MomoAIOConfirmResponse struct {

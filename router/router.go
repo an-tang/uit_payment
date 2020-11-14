@@ -20,7 +20,6 @@ func Init(ctx context.Context) *mux.Router {
 	r.HandleFunc("/v1/payments/{transaction_id}", handler.New(handler.NewRefundPayment())).Methods("DELETE")
 	r.HandleFunc("/health", handler.New(handler.NewHealth()))
 
-	// r.HandleFunc("/confirm", handler.New(handler.NewConfirm())).Methods("POST")
 	r.HandleFunc("/momo/confirm", handler.New(handler.NewMomoConfirm())).Methods("POST")
 	return r
 }

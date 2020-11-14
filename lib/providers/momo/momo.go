@@ -36,21 +36,6 @@ func (mp *MomoPayment) Name() string {
 	return enum.PaymentMethodValue(enum.Momo)
 }
 
-// func (mp *MomoPayment) CreatePayment(paymentRequest *request.CreatePaymentRequest, paymentModel *model.Payment) (*model.PaymentRequest, error) {
-// 	paymentRequestLog := &model.PaymentRequest{RequestType: enum.PaymentRequestGenerateQRCode}
-// 	momoReq := mp.parseParamToCreatePaymentRequest(paymentRequest, paymentModel)
-// 	qrCode, err := generateQRCode(momoReq)
-// 	if err != nil {
-// 		paymentRequestLog.Populate(momoReq, nil, http.StatusBadRequest)
-// 		return paymentRequestLog, err
-// 	}
-
-// 	paymentModel.QrCode = qrCode
-// 	paymentModel.UID = paymentModel.GenerateUID()
-// 	paymentRequestLog.Populate(momoReq, nil, http.StatusOK)
-// 	return paymentRequestLog, nil
-// }
-
 func (mp *MomoPayment) CreatePayment(paymentRequest *request.CreatePaymentRequest, paymentModel *model.Payment) (*model.PaymentRequest, error) {
 	paymentRequestLog := &model.PaymentRequest{RequestType: enum.PaymentRequestTypeCreate}
 	momoReq := parseParamToCreateAIOPayment(paymentRequest, paymentModel)
@@ -194,7 +179,7 @@ func parseParamToCreateAIOPayment(paymentRequest *request.CreatePaymentRequest, 
 		PartnerCode: env.GetMomoPartnerCode(),
 		RequestID:   paymentModel.GenerateUID(),
 		Amount:      fmt.Sprintf("%v", int(paymentModel.Amount)),
-		NotifyURL:   fmt.Sprintf("%s%s", env.MomoCallbackURL(), "/momo/confirm"),
+		NotifyURL:   fmt.Sprintf("%s%s", env.GetMomoCallbackURL(), "/momo/confirm"),
 		OrderID:     paymentModel.TransactionID,
 		OrderInfo:   paymentRequest.Product,
 		RequestType: "captureMoMoWallet",

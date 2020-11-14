@@ -102,10 +102,6 @@ func GetMomoQRCodeURL() string {
 	return getEnv("MOMO_QRCODE_URL")
 }
 
-func GetMomoConfirmURL() string {
-	return getEnv("MOMO_CONFIRM_URL")
-}
-
 func GetMomoGetPaymentURL() string {
 	return getEnv("MOMO_GETPAYMENT_URL")
 }
@@ -122,11 +118,7 @@ func GetMomoCreateAIOURL() string {
 	return getEnv("MOMO_AIO_URL")
 }
 
-func MomoConfirmURL() string {
-	return getEnv("MOMO_CONFIRM_URL")
-}
-
-func MomoCallbackURL() string {
+func GetMomoCallbackURL() string {
 	return getEnv("MOMO_CALLBACK_URL")
 }
 
@@ -154,8 +146,4 @@ func GetMomoVersion() float32 {
 	}
 	float := float32(value)
 	return float
-}
-
-func UitTravelURL() string {
-	return getEnv("UIT_TRAVEL_URL")
 }
