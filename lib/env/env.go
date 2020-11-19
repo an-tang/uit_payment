@@ -98,26 +98,6 @@ func GetFileMaxAge() int {
 	return v
 }
 
-func GetMomoQRCodeURL() string {
-	return getEnv("MOMO_QRCODE_URL")
-}
-
-func GetMomoGetPaymentURL() string {
-	return getEnv("MOMO_GETPAYMENT_URL")
-}
-
-func GetMomoRefundURL() string {
-	return getEnv("MOMO_REFUND_URL")
-}
-
-func GetMomoNotifyURL() string {
-	return getEnv("MOMO_NOTIFY_URL")
-}
-
-func GetMomoCreateAIOURL() string {
-	return getEnv("MOMO_AIO_URL")
-}
-
 func GetMomoCallbackURL() string {
 	return getEnv("MOMO_CALLBACK_URL")
 }
@@ -134,8 +114,8 @@ func GetMomoSecretKey() string {
 	return getEnv("MOMO_SECRETKEY")
 }
 
-func GetMomoPublicKey() string {
-	return getEnv("MOMO_PUBLICKEY")
+func GetMomoAIOURL() string {
+	return getEnv("MOMO_AIO_URL")
 }
 
 func GetMomoVersion() float32 {

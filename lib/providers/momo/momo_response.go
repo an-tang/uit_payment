@@ -2,65 +2,7 @@ package momo
 
 import "fmt"
 
-type ScanQRCodeResponse struct {
-	Status       int     `json:"status"`
-	Message      string  `json:"message"`
-	PartnerRefID string  `json:"partnerRefId"`
-	MomoTransID  string  `json:"momoTransId"`
-	Amount       float32 `json:"amount"`
-	Signature    string  `json:"signature"`
-}
-
-type MomoNotifyURLResponse struct {
-	Status       string  `json:"status"`
-	Message      string  `json:"success"`
-	PartnerRefID string  `json:"partnerRefId"`
-	MomoTransID  string  `json:"momoTransId"`
-	Amount       float32 `json:"amount"`
-	Signature    string  `json:"signature"`
-}
-
-type MomoPaymentResponse struct {
-	Status  int    `json:"status"`
-	Message string `json:"message"`
-	Data    struct {
-		PartnerCode  string  `json:"partnerCode"`
-		PartnerRefID string  `json:"partnerRefId"`
-		MomoTransID  string  `json:"momoTransId"`
-		Amount       float32 `json:"amount"`
-	} `json:"data"`
-	Signature string `json:"signature"`
-}
-
-type MomoGetPaymentResponse struct {
-	Status  int    `json:"status"`
-	Message string `json:"message"`
-	Data    struct {
-		Status         int     `json:"status"`
-		Message        string  `json:"message"`
-		PartnerCode    string  `json:"partnerCode"`
-		BillID         string  `json:"billId"`
-		TransID        int64   `json:"transId"`
-		Amount         float32 `json:"amount"`
-		DiscountAmount float32 `json:"discountAmount"`
-		Fee            float32 `json:"fee"`
-		PhoneNumber    string  `json:"phoneNumber"`
-		CustomerName   string  `json:"customerName"`
-		StoreID        string  `json:"storeId"`
-		RequestDate    string  `json:"requestDate"`
-		ResponseDate   string  `json:"responseDate"`
-	} `json:"data"`
-}
-
-type MomoRefundResponse struct {
-	Status       int     `json:"status"`
-	Message      string  `json:"message"`
-	PartnerRefID string  `json:"partnerRefId"`
-	TransID      string  `json:"transId"`
-	Amount       float32 `json:"amount"`
-}
-
-type MomoCreateAIOResponse struct {
+type MomoCreatePaymentResponse struct {
 	RequestID        string `json:"requestId"`
 	ErrorCode        int    `json:"errorCode"`
 	OrderID          string `json:"orderId"`
@@ -72,6 +14,35 @@ type MomoCreateAIOResponse struct {
 	QrCodeURL        string `json:"qrCodeUrl"`
 	Deeplink         string `json:"deeplink"`
 	DeeplinkWebInApp string `json:"deeplinkWebInApp"`
+}
+type MomoGetPaymentResponse struct {
+	PartnerCode  string `json:"partnerCode"`
+	AccessKey    string `json:"accessKey"`
+	RequestID    string `json:"requestId"`
+	OrderID      string `json:"orderId"`
+	RequestType  string `json:"requestType"`
+	ExtraData    string `json:"extraData"`
+	Amount       string `json:"amount"`
+	TransID      string `json:"transId"`
+	PayType      string `json:"payType"`
+	ErrorCode    int    `json:"errorCode"`
+	Message      string `json:"message"`
+	LocalMessage string `json:"localMessage"`
+	Signature    string `json:"signature"`
+}
+
+type MomoRefundResponse struct {
+	PartnerCode  string `json:"partnerCode"`
+	AccessKey    string `json:"accessKey"`
+	RequestID    string `json:"requestId"`
+	Amount       string `json:"amount"`
+	OrderID      string `json:"orderId"`
+	TransID      string `json:"transId"`
+	RequestType  string `json:"requestType"`
+	Signature    string `json:"signature"`
+	ErrorCode    int    `json:"errorCode"`
+	Message      string `json:"message"`
+	LocalMessage string `json:"localMessage"`
 }
 
 type MomoAIOConfirmResponse struct {

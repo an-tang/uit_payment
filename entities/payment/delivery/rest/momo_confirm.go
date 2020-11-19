@@ -14,12 +14,11 @@ import (
 	"uit_payment/lib/env"
 	"uit_payment/lib/hmac"
 	httpclient "uit_payment/lib/http_client"
+	"uit_payment/lib/logging"
 	log "uit_payment/lib/logging"
 	"uit_payment/lib/providers/momo"
 	"uit_payment/model"
 	dom_api "uit_payment/services/dom"
-
-	"github.com/sirupsen/logrus"
 )
 
 type MomoConfirm struct {
@@ -43,7 +42,7 @@ func NewMomoConfirm() *MomoConfirm {
 }
 
 func (m *MomoConfirm) Handle() {
-	params := &momo.MomoAIOConfirmRequest{}
+	params := &momo.MomoConfirmPaymentRequest{}
 	m.ParseParam(&params)
 
 	payment := &model.Payment{}
@@ -53,31 +52,37 @@ func (m *MomoConfirm) Handle() {
 		return
 	}
 
-	req := parseConfirm(*params)
-	m.HTTPClient.Post(env.GetMomoNotifyURL(), "application/json", &req, nil)
-
 	paymentRequestLog := &model.PaymentRequest{
 		RequestType: enum.PaymentRequestTypeWebhook,
 		PaymentID:   payment.ID,
 	}
 
-	paymentRequestLog.Populate(params, req, http.StatusOK)
+	resp := parseConfirm(*params)
+	if resp.ErrorCode != 0 {
+		paymentRequestLog.Populate(params, resp, http.StatusBadRequest)
+		m.PaymentRequestRepo.Create(paymentRequestLog)
+		m.RenderErrorWithJSON(resp)
+		return
+	}
+
+	m.RenderSuccess(resp)
+
+	paymentRequestLog.Populate(params, resp, http.StatusOK)
 	// go m.callbackPartner(params, payment)
 	go m.callbackgRPC(*payment)
 
 	go m.updatePayment(payment, paymentRequestLog, params)
 }
 
-func parseConfirm(req momo.MomoAIOConfirmRequest) momo.MomoAIOConfirmResponse {
+func parseConfirm(req momo.MomoConfirmPaymentRequest) momo.MomoAIOConfirmResponse {
 	resp := momo.MomoAIOConfirmResponse{
 		AccessKey:    req.AccessKey,
 		PartnerCode:  req.PartnerCode,
 		OrderID:      req.OrderID,
 		RequestID:    req.RequestID,
 		ResponseTime: req.ResponseTime,
-		ErrorCode:    0,
-		Message:      "Success",
-		ExtraData:    "",
+		ErrorCode:    req.ErrorCode,
+		Message:      req.Message,
 	}
 
 	hmacData := resp.HmacCombine()
@@ -85,10 +90,23 @@ func parseConfirm(req momo.MomoAIOConfirmRequest) momo.MomoAIOConfirmResponse {
 	return resp
 }
 
-func (m *MomoConfirm) callbackPartner(params *momo.MomoAIOConfirmRequest, payment *model.Payment) {
+func (m *MomoConfirm) updatePayment(payment *model.Payment, paymentRequestLog *model.PaymentRequest, params *momo.MomoConfirmPaymentRequest) {
+	if params.ErrorCode != 0 {
+		m.PaymentService.UpdateFailed(payment, paymentRequestLog)
+	} else {
+		m.PaymentService.UpdatePaid(payment, paymentRequestLog)
+	}
+}
+
+func (m *MomoConfirm) callbackgRPC(payment model.Payment) {
+	payment.Status = enum.PaymentStatusPaid
+	m.DOMService.PaymentCallback(context.TODO(), payment)
+}
+
+func (m *MomoConfirm) callbackPartner(params *momo.MomoConfirmPaymentRequest, payment *model.Payment) {
 	amount, err := strconv.ParseFloat(params.Amount, 32)
 	if err != nil {
-		logrus.WithError(err).Errorln("MomoConfirm.ConvertAmountError:", err.Error())
+		logging.WithError(err).Errorln("MomoConfirm.ConvertAmountError:", err.Error())
 		amount = 0
 	}
 
@@ -104,25 +122,12 @@ func (m *MomoConfirm) callbackPartner(params *momo.MomoAIOConfirmRequest, paymen
 
 	partner, err := m.PartnerRepo.FindByID(payment.PartnerID)
 	if err != nil {
-		logrus.WithError(err).Errorln("FindPartnerError:", err.Error())
+		logging.WithError(err).Errorln("FindPartnerError:", err.Error())
 	}
 
 	endpoint := partner.CallbackURL
 	err = m.HTTPClient.Post(endpoint, "application/json", req, nil)
 	if err != nil {
-		logrus.WithError(err).Errorln("MomoConfirm.CallbackPartnerError:", err.Error())
+		logging.WithError(err).Errorln("MomoConfirm.CallbackPartnerError:", err.Error())
 	}
-}
-
-func (m *MomoConfirm) updatePayment(payment *model.Payment, paymentRequestLog *model.PaymentRequest, params *momo.MomoAIOConfirmRequest) {
-	if params.ErrorCode != 0 {
-		m.PaymentService.UpdateFailed(payment, paymentRequestLog)
-	} else {
-		m.PaymentService.UpdatePaid(payment, paymentRequestLog)
-	}
-}
-
-func (m *MomoConfirm) callbackgRPC(payment model.Payment) {
-	payment.Status = enum.PaymentStatusPaid
-	m.DOMService.PaymentCallback(context.TODO(), payment)
 }

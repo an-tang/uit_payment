@@ -2,32 +2,7 @@ package momo
 
 import "fmt"
 
-type MomoOrderRequest struct {
-	Amount        float32 `json:"amount"`
-	StoreID       string  `json:"storeId"`
-	TransactionID string  `json:"transaction_id"`
-	Signature     string  `json:"signature"`
-	Domain        string  `json:"domain"`
-	PartnerCode   string  `json:"partnerCode"`
-	StoreSlug     string  `json:"storeSlug"`
-}
-
-type MomoFieldNotifyURLRequest struct {
-	PartnerCode    string  `json:"partnerCode"`
-	AccessKey      string  `json:"accessKey"`
-	Amount         float32 `json:"amount"`
-	PartnerRefID   string  `json:"partnerRefId"`
-	PartnerTransID string  `json:"partnerTransId"`
-	TransType      string  `json:"transType"`
-	MomoTransID    string  `json:"momoTransId"`
-	Status         int     `json:"status"`
-	Message        string  `json:"message"`
-	ResponseTime   int64   `json:"responseTime"`
-	StoreID        string  `json:"storeId"`
-	Signature      string  `json:"signature"`
-}
-
-type MomoCreateAIORequest struct {
+type MomoCreatePaymentRequest struct {
 	AccessKey   string `json:"accessKey"`
 	PartnerCode string `json:"partnerCode"`
 	RequestType string `json:"requestType"`
@@ -41,7 +16,7 @@ type MomoCreateAIORequest struct {
 	Signature   string `json:"signature"`
 }
 
-type MomoAIOConfirmRequest struct {
+type MomoConfirmPaymentRequest struct {
 	PartnerCode  string `json:"partnerCode" form:"partnerCode"`
 	AccessKey    string `json:"accessKey" form:"accessKey"`
 	RequestID    string `json:"requestId" form:"requestId"`
@@ -58,70 +33,37 @@ type MomoAIOConfirmRequest struct {
 	ExtraData    string `json:"extraData" form:"extraData"`
 	Signature    string `json:"signature" form:"signature"`
 }
-
-type MomoPaymentRequest struct {
-	PartnerCode    string `json:"partnerCode"`
-	PartnerRefID   string `json:"partnerRefId"`
-	RequestType    string `json:"requestType"`
-	RequestID      string `json:"requestId"`
-	MomoTransID    string `json:"momoTransId"`
-	Signature      string `json:"signature"`
-	CustomerNumber string `json:"customerNumber"`
-	Description    string `json:"description"`
-}
-
 type MomoGetPaymentRequest struct {
-	PartnerCode  string  `json:"partnerCode"`
-	PartnerRefID string  `json:"partnerRefId"`
-	Hash         string  `json:"hash"`
-	Version      float32 `json:"version"`
-	MomoTransID  string  `json:"momoTransId"`
+	PartnerCode string `json:"partnerCode"`
+	AccessKey   string `json:"accessKey"`
+	RequestID   string `json:"requestId"`
+	OrderID     string `json:"orderId"`
+	RequestType string `json:"requestType"`
+	Signature   string `json:"signature"`
 }
 
-type MomoRefundRequest struct {
-	PartnerCode string  `json:"partnerCode"`
-	RequestID   string  `json:"requestId"`
-	Hash        string  `json:"hash"`
-	Version     float32 `json:"version"`
+type MomoRefundPaymentRequest struct {
+	PartnerCode string `json:"partnerCode"`
+	AccessKey   string `json:"accessKey"`
+	RequestID   string `json:"requestId"`
+	Amount      string `json:"amount"`
+	OrderID     string `json:"orderId"`
+	TransID     string `json:"transId"`
+	RequestType string `json:"requestType"`
+	Signature   string `json:"signature"`
 }
 
-type HashGetPayment struct {
-	PartnerCode  string `json:"partnerCode"`
-	PartnerRefID string `json:"partnerRefId"`
-	RequestID    string `json:"requestId"`
-	MomoTransID  string `json:"momoTranId"`
-}
-
-type HashRefundPayment struct {
-	PartnerCode  string      `json:"partnerCode"`
-	PartnerRefID string      `json:"partnerRefId"`
-	MomoTransID  string      `json:"momoTransId"`
-	Amount       float32     `json:"amount"`
-	StoreID      string      `json:"storeId"`
-	Description  string      `json:"description"`
-	Extra        interface{} `json:"extra"`
-}
-
-func (m *MomoOrderRequest) HmacCombine() string {
-	return fmt.Sprintf("storeSlug=%s&amount=%v&billId=%s", m.StoreSlug, int64(m.Amount), m.TransactionID)
-}
-
-func (m *MomoNotifyURLResponse) HmacCombine() string {
-	return fmt.Sprintf("amount=%v&message=%s&momoTransId=%s&partnerRefId=%v&status=%v",
-		m.Amount, m.Message, m.MomoTransID, m.PartnerRefID, m.Status)
-}
-
-func (m *MomoPaymentRequest) HmacCombine() string {
-	return fmt.Sprintf("partnerCode=%s&partnerRefId=%s&requestType=%s&requestId=%s&momoTransId=%s",
-		m.PartnerCode, m.PartnerRefID, m.RequestType, m.RequestID, m.MomoTransID)
-}
-
-func (m *MomoCreateAIORequest) HmacCombine() string {
+func (m *MomoCreatePaymentRequest) CombineHmacData() string {
 	return fmt.Sprintf("partnerCode=%s&accessKey=%s&requestId=%s&amount=%s&orderId=%s&orderInfo=%s&returnUrl=%s&notifyUrl=%s&extraData=%s",
 		m.PartnerCode, m.AccessKey, m.RequestID, m.Amount, m.OrderID, m.OrderInfo, m.ReturnURL, m.NotifyURL, m.ExtraData)
 }
 
-func (m *MomoAIOConfirmRequest) HmacCombine() string {
-	return fmt.Sprintf("partnerCode=%s&accessKey=%s&requestId=%s&amount=%s&orderId=%s&orderInfo=%s&orderType=%s&transId=%s&message=%s&localMessage=%s&responseTime=%s&errorCode=%d&payType=%s&extraData=%s",
-		m.PartnerCode, m.AccessKey, m.RequestID, m.Amount, m.OrderID, m.OrderInfo, m.OrderType, m.TransID, m.Message, m.LocalMessage, m.ResponseTime, m.ErrorCode, m.PayType, m.ExtraData)
+func (m *MomoGetPaymentRequest) CombineHmacData() string {
+	return fmt.Sprintf("partnerCode=%s&accessKey=%s&requestId=%s&orderId=%s&requestType=%s",
+		m.PartnerCode, m.AccessKey, m.RequestID, m.OrderID, m.RequestType)
+}
+
+func (m *MomoRefundPaymentRequest) CombineHmacData() string {
+	return fmt.Sprintf("partnerCode=%s&accessKey=%s&requestId=%s&amount=%s&orderId=%s&transId=%s&requestType=%s",
+		m.PartnerCode, m.AccessKey, m.RequestID, m.Amount, m.OrderID, m.TransID, m.RequestType)
 }

@@ -3,7 +3,6 @@ package service
 import (
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 
 	partnerRepo "uit_payment/entities/partner"
@@ -11,11 +10,10 @@ import (
 	repository "uit_payment/entities/payment/repository"
 	paymentRequestRepo "uit_payment/entities/payment_request/repository"
 	"uit_payment/enum"
+	"uit_payment/lib/logging"
 	"uit_payment/lib/providers"
 	"uit_payment/lib/providers/provider"
 	"uit_payment/model"
-
-	"github.com/sirupsen/logrus"
 )
 
 type PaymentService struct {
@@ -59,7 +57,6 @@ func (p *PaymentService) CreatePayment(paymentRequest *request.CreatePaymentRequ
 		return payment, err
 	}
 
-	log.Printf("Create payment: %v", payment)
 	return payment, nil
 }
 
@@ -69,6 +66,7 @@ func (p *PaymentService) GetPayment(transactionID string) (*model.Payment, error
 	if err != nil {
 		return nil, err
 	}
+
 	if !payment.IsPersisted() {
 		return nil, fmt.Errorf("Invalid %s", transactionID)
 	}
@@ -80,7 +78,6 @@ func (p *PaymentService) GetPayment(transactionID string) (*model.Payment, error
 	p.PaymentClient = p.Provider.GetProvider(payment)
 
 	paymentRequestLog, err := p.PaymentClient.GetPayment(payment)
-
 	if err != nil {
 		return payment, err
 	}
@@ -169,7 +166,7 @@ func (p *PaymentService) findPartnerByKey(key string) model.Partner {
 	partner := &model.Partner{}
 	err := p.PartnerRepo.FindByKey(key, partner)
 	if err != nil {
-		logrus.Errorln("PaymentService.findPartnerByKey:", err.Error())
+		logging.WithError(err).Errorln("PaymentService.findPartnerByKey:", err.Error())
 		return model.Partner{}
 	}
 
