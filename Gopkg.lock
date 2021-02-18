@@ -2,10 +2,22 @@
 
 
 [[projects]]
-  name = "github.com/davecgh/go-spew"
-  packages = ["spew"]
-  revision = "8991bc29aa16c548c550c7ff78260e27b9ab7c73"
-  version = "v1.1.1"
+  name = "github.com/go-playground/form"
+  packages = ["."]
+  revision = "ff1a304db362008f307d9d9964a2cca72deeb7e0"
+  version = "v4.1.1"
+
+[[projects]]
+  name = "github.com/golang/protobuf"
+  packages = ["proto","ptypes","ptypes/any","ptypes/duration","ptypes/timestamp"]
+  revision = "4846b58453b3708320bdb524f25cc5a1d9cda4d4"
+  version = "v1.4.3"
+
+[[projects]]
+  name = "github.com/gorilla/mux"
+  packages = ["."]
+  revision = "98cb6bf42e086f6af920b965c38cacc07402d51b"
+  version = "v1.8.0"
 
 [[projects]]
   name = "github.com/jinzhu/gorm"
@@ -32,22 +44,16 @@
   version = "v1.7.0"
 
 [[projects]]
-  name = "github.com/pmezard/go-difflib"
-  packages = ["difflib"]
-  revision = "792786c7400a136282c1664665ae0a8db921c6c2"
-  version = "v1.0.0"
-
-[[projects]]
   name = "github.com/sirupsen/logrus"
   packages = ["."]
   revision = "60c74ad9be0d874af0ab0daef6ab07c5c5911f0d"
   version = "v1.6.0"
 
 [[projects]]
-  name = "github.com/stretchr/testify"
-  packages = ["assert"]
-  revision = "f654a9112bbeac49ca2cd45bfbe11533c4666cf8"
-  version = "v1.6.1"
+  branch = "master"
+  name = "golang.org/x/net"
+  packages = ["http/httpguts","http2","http2/hpack","idna","internal/timeseries","trace"]
+  revision = "ac852fbbde11df194bfd5004603c7c8e117901f2"
 
 [[projects]]
   branch = "master"
@@ -56,10 +62,28 @@
   revision = "ed371f2e16b4b305ee99df548828de367527b76b"
 
 [[projects]]
-  branch = "v2"
-  name = "gopkg.in/Graylog2/go-gelf.v2"
-  packages = ["gelf"]
-  revision = "1550ee647df0510058c9d67a45c56f18911d80b8"
+  name = "golang.org/x/text"
+  packages = ["collate","collate/build","internal/colltab","internal/gen","internal/language","internal/language/compact","internal/tag","internal/triegen","internal/ucd","language","secure/bidirule","transform","unicode/bidi","unicode/cldr","unicode/norm","unicode/rangetable"]
+  revision = "22f1617af38ed4cd65b3b96e02bab267e560155c"
+  version = "v0.3.4"
+
+[[projects]]
+  branch = "master"
+  name = "google.golang.org/genproto"
+  packages = ["googleapis/rpc/status"]
+  revision = "9ee31aac76e7782920c6994b99fc3444fc48486a"
+
+[[projects]]
+  name = "google.golang.org/grpc"
+  packages = [".","attributes","backoff","balancer","balancer/base","balancer/grpclb/state","balancer/roundrobin","binarylog/grpc_binarylog_v1","codes","connectivity","credentials","encoding","encoding/proto","grpclog","internal","internal/backoff","internal/balancerload","internal/binarylog","internal/buffer","internal/channelz","internal/credentials","internal/envconfig","internal/grpclog","internal/grpcrand","internal/grpcsync","internal/grpcutil","internal/resolver","internal/resolver/dns","internal/resolver/passthrough","internal/resolver/unix","internal/serviceconfig","internal/status","internal/syscall","internal/transport","internal/transport/networktype","keepalive","metadata","peer","resolver","serviceconfig","stats","status","tap"]
+  revision = "2cf12a82ed4381ce0b0f7d487ee2eca772ee18e3"
+  version = "v1.34.0"
+
+[[projects]]
+  name = "google.golang.org/protobuf"
+  packages = ["encoding/prototext","encoding/protowire","internal/descfmt","internal/descopts","internal/detrand","internal/encoding/defval","internal/encoding/messageset","internal/encoding/tag","internal/encoding/text","internal/errors","internal/fieldsort","internal/filedesc","internal/filetype","internal/flags","internal/genid","internal/impl","internal/mapsort","internal/pragma","internal/set","internal/strs","internal/version","proto","reflect/protoreflect","reflect/protoregistry","runtime/protoiface","runtime/protoimpl","types/known/anypb","types/known/durationpb","types/known/timestamppb"]
+  revision = "3f7a61f89bb6813f89d981d1870ed68da0b3c3f1"
+  version = "v1.25.0"
 
 [[projects]]
   name = "gopkg.in/natefinch/lumberjack.v2"
@@ -67,15 +91,9 @@
   revision = "a96e63847dc3c67d17befa69c303767e2f84e54f"
   version = "v2.1"
 
-[[projects]]
-  branch = "v3"
-  name = "gopkg.in/yaml.v3"
-  packages = ["."]
-  revision = "eeeca48fe7764f320e4870d231902bf9c1be2c08"
-
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "b7ef39b37855984beedd144039ddde2f6110e967a813e4b35ce25c2e5debbcce"
+  inputs-digest = "c4ee11d5d248a9560225d68f4f94db97c163c64305b992163d629aa2221d9e34"
   solver-name = "gps-cdcl"
   solver-version = 1
