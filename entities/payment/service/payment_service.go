@@ -76,7 +76,6 @@ func (p *PaymentService) GetPayment(transactionID string) (*model.Payment, error
 	}
 
 	p.PaymentClient = p.Provider.GetProvider(payment)
-
 	paymentRequestLog, err := p.PaymentClient.GetPayment(payment)
 	if err != nil {
 		return payment, err

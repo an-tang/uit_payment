@@ -20,48 +20,48 @@ const (
 	REQUEST_TYPE_REFUND_PAYMENT = "refundMoMoWallet"
 )
 
-type MomoPayment struct {
-	MomoPartnerCode string
-	MomoAccessKey   string
-	MomoSecretKey   string
-	MomoNotifyURL   string
-	MomoEndpoint    string
+type MoMoPayment struct {
+	MoMoPartnerCode string
+	MoMoAccessKey   string
+	MoMoSecretKey   string
+	MoMoNotifyURL   string
+	MoMoEndpoint    string
 	HTTPClient      httpclient.HTTPCInterface
 }
 
 func NewClient() providers.ProviderInterface {
-	return &MomoPayment{
-		MomoPartnerCode: env.GetMomoPartnerCode(),
-		MomoAccessKey:   env.GetMomoAccessKey(),
-		MomoSecretKey:   env.GetMomoSecretKey(),
-		MomoNotifyURL:   env.GetMomoCallbackURL(),
-		MomoEndpoint:    env.GetMomoAIOURL(),
+	return &MoMoPayment{
+		MoMoPartnerCode: env.GetMomoPartnerCode(),
+		MoMoAccessKey:   env.GetMomoAccessKey(),
+		MoMoSecretKey:   env.GetMomoSecretKey(),
+		MoMoNotifyURL:   env.GetMomoCallbackURL(),
+		MoMoEndpoint:    env.GetMomoAIOURL(),
 		HTTPClient:      httpclient.HTTPInstance(),
 	}
 }
 
-func (mp *MomoPayment) Name() string {
+func (mp *MoMoPayment) Name() string {
 	return enum.PaymentMethodValue(enum.Momo)
 }
 
-func (mp *MomoPayment) CreatePayment(paymentRequest *request.CreatePaymentRequest, paymentModel *model.Payment) (*model.PaymentRequest, error) {
+func (mp *MoMoPayment) CreatePayment(paymentRequest *request.CreatePaymentRequest, paymentModel *model.Payment) (*model.PaymentRequest, error) {
 	paymentRequestLog := &model.PaymentRequest{RequestType: enum.PaymentRequestTypeCreate}
-	momoReq := parseParamToCreateAIOPayment(paymentRequest, paymentModel)
-	momoResp := &MomoCreatePaymentResponse{}
+	req := parseParamToCreateAIOPayment(paymentRequest, paymentModel)
+	resp := &MomoCreatePaymentResponse{}
 
-	err := mp.HTTPClient.Post(mp.MomoEndpoint, "application/json", momoReq, momoResp)
+	err := mp.HTTPClient.Post(mp.MoMoEndpoint, "application/json", req, resp)
 	if err != nil {
-		paymentRequestLog.Populate(momoReq, momoResp, http.StatusBadRequest)
+		paymentRequestLog.Populate(req, resp, http.StatusBadRequest)
 		return paymentRequestLog, err
 	}
 
-	paymentModel.QrCode = momoResp.PayURL
-	paymentModel.PaymentTX = momoResp.RequestID
-	paymentRequestLog.Populate(momoReq, momoResp, http.StatusOK)
+	paymentModel.QrCode = resp.PayURL
+	paymentModel.PaymentTX = resp.RequestID
+	paymentRequestLog.Populate(req, resp, http.StatusOK)
 	return paymentRequestLog, nil
 }
 
-func (mp *MomoPayment) GetPayment(paymentModel *model.Payment) (*model.PaymentRequest, error) {
+func (mp *MoMoPayment) GetPayment(paymentModel *model.Payment) (*model.PaymentRequest, error) {
 	paymentRequestLog := &model.PaymentRequest{
 		RequestType: enum.PaymentRequestTypeGetDetail,
 		PaymentID:   paymentModel.ID,
@@ -70,7 +70,7 @@ func (mp *MomoPayment) GetPayment(paymentModel *model.Payment) (*model.PaymentRe
 	req := mp.parseGetPaymentRequest(paymentModel)
 	resp := &MomoGetPaymentResponse{}
 
-	err := mp.HTTPClient.Post(mp.MomoEndpoint, "Application/json", req, resp)
+	err := mp.HTTPClient.Post(mp.MoMoEndpoint, "Application/json", req, resp)
 	if err != nil {
 		paymentRequestLog.Populate(req, resp, http.StatusBadRequest)
 		return paymentRequestLog, err
@@ -87,7 +87,7 @@ func (mp *MomoPayment) GetPayment(paymentModel *model.Payment) (*model.PaymentRe
 	return paymentRequestLog, nil
 }
 
-func (mp *MomoPayment) RefundPayment(paymentModel *model.Payment) (*model.PaymentRequest, error) {
+func (mp *MoMoPayment) RefundPayment(paymentModel *model.Payment) (*model.PaymentRequest, error) {
 	paymentRequestLog := &model.PaymentRequest{
 		RequestType: enum.PaymentRequestTypeRefund,
 	}
@@ -95,7 +95,7 @@ func (mp *MomoPayment) RefundPayment(paymentModel *model.Payment) (*model.Paymen
 	req := mp.parseRefundPaymentRequest(paymentModel)
 	resp := &MomoRefundResponse{}
 
-	err := mp.HTTPClient.Post(mp.MomoEndpoint, "Application/json", req, resp)
+	err := mp.HTTPClient.Post(mp.MoMoEndpoint, "Application/json", req, resp)
 	if err != nil {
 		paymentRequestLog.Populate(req, resp, http.StatusBadRequest)
 		return paymentRequestLog, err
@@ -129,25 +129,25 @@ func parseParamToCreateAIOPayment(paymentRequest *request.CreatePaymentRequest, 
 	return request
 }
 
-func (mp *MomoPayment) parseGetPaymentRequest(paymentModel *model.Payment) MomoGetPaymentRequest {
+func (mp *MoMoPayment) parseGetPaymentRequest(paymentModel *model.Payment) MomoGetPaymentRequest {
 	request := MomoGetPaymentRequest{
-		AccessKey:   mp.MomoAccessKey,
-		PartnerCode: mp.MomoPartnerCode,
+		AccessKey:   mp.MoMoAccessKey,
+		PartnerCode: mp.MoMoPartnerCode,
 		RequestID:   paymentModel.GenerateUID(),
 		OrderID:     paymentModel.TransactionID,
 		RequestType: "transactionStatus",
 	}
 
 	hmacData := request.CombineHmacData()
-	request.Signature = hmac.HexStringEncode(hmac.SHA256, mp.MomoSecretKey, hmacData)
+	request.Signature = hmac.HexStringEncode(hmac.SHA256, mp.MoMoSecretKey, hmacData)
 
 	return request
 }
 
-func (mp *MomoPayment) parseRefundPaymentRequest(paymentModel *model.Payment) MomoRefundPaymentRequest {
+func (mp *MoMoPayment) parseRefundPaymentRequest(paymentModel *model.Payment) MomoRefundPaymentRequest {
 	request := MomoRefundPaymentRequest{
-		AccessKey:   mp.MomoAccessKey,
-		PartnerCode: mp.MomoPartnerCode,
+		AccessKey:   mp.MoMoAccessKey,
+		PartnerCode: mp.MoMoPartnerCode,
 		RequestID:   paymentModel.GenerateUID(),
 		Amount:      fmt.Sprintf("%d", int(paymentModel.Amount)),
 		OrderID:     fmt.Sprintf("REFUND_%s", paymentModel.TransactionID),
@@ -156,7 +156,7 @@ func (mp *MomoPayment) parseRefundPaymentRequest(paymentModel *model.Payment) Mo
 	}
 
 	hmacData := request.CombineHmacData()
-	request.Signature = hmac.HexStringEncode(hmac.SHA256, mp.MomoSecretKey, hmacData)
+	request.Signature = hmac.HexStringEncode(hmac.SHA256, mp.MoMoSecretKey, hmacData)
 
 	return request
 }
